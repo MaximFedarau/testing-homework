@@ -37,6 +37,8 @@
 
 ## Как запустить
 
+0. Установите версию в .nvmrc и убедитесь в следующем: https://stackoverflow.com/questions/72806878/issue-installing-better-sqlite3-on-mac
+
 ```sh
 # установите зависимости
 npm ci
