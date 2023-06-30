@@ -1,28 +1,48 @@
-describe("Шапка на всех страницах должна быть одинаковая.", async function() {
-  const urls = [
-    "/",
-    "/catalog",
-    "/delivery",
-    "/contacts",
-    "/cart",
-  ];
+const urls = [
+  "/",
+  "/catalog",
+  "/delivery",
+  "/contacts",
+  "/cart",
+];
 
+const check = async (browser) => {
+  // проверяем все "статические" ссылки
+  for (let i = 0; i < urls.length; ++i) {
+    const url = urls[i];
+    await browser.url(`http://localhost:3000/hw/store${url}`);
+    await browser.assertView(`plain_${url}`, 'nav');
+  }
+
+  // проверяем страницу с продуктом
+  await browser.url("http://localhost:3000/hw/store/catalog");
+
+  // ждем появления карточек с продуктами
+  const productItem = await browser.$('.card');
+  await browser.waitUntil(async function() {
+    return await productItem.isExisting();
+  }, {
+    timeout: 5000,
+    timeoutMsg: 'Expected ProductItem to render after 5s.'
+  })
+  // переходим на страницу с продуктом
+  const detailsLink = await productItem.$(".card-link");
+  await detailsLink.click();
+
+  await browser.assertView("plain_product", 'nav');
+}
+
+describe("Шапка на всех страницах должна быть одинаковая.", async function() {
   it("Шапка на всех страницах должна быть одинаковая при ширине экрана больше 576px.", async function() {
     await this.browser.setWindowSize(1920, 1080);
-    for (let i = 0; i < urls.length; ++i) {
-      const url = urls[i];
-      await this.browser.url(`http://localhost:3000/hw/store${url}`);
-      await this.browser.assertView(`plain_${url}`, 'nav');
-    }
+
+    await check(this.browser);
   })
 
   it("Шапка на всех страницах должна быть одинаковая при ширине экрана меньше 576px.", async function() {
     await this.browser.setWindowSize(572, 4320);
-    for (let i = 0; i < urls.length; ++i) {
-      const url = urls[i];
-      await this.browser.url(`http://localhost:3000/hw/store${url}`);
-      await this.browser.assertView(`plain_${url}`, 'nav');
-    }
+
+    await check(this.browser);
   })
 })
 
