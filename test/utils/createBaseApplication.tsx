@@ -5,7 +5,6 @@ import { Provider } from "react-redux";
 import { Application } from "../../src/client/Application";
 import { initStore } from "../../src/client/store";
 import { CartApi, ExampleApi } from "../../src/client/api";
-import { ProductShortInfo } from "../../src/common/types";
 
 export const createBaseApplication = (
   initialEntries: string[],
