@@ -9,20 +9,22 @@ import {
 } from "@testing-library/react";
 import events from "@testing-library/user-event";
 import { Helmet } from "react-helmet";
+import { AxiosResponse } from "axios";
 
 import { ExampleApi, CartApi } from "../../src/client/api";
 import { initStore } from "../../src/client/store";
 import { Application } from "../../src/client/Application";
-import { CartState } from "../../src/common/types";
+import { CartState, ProductShortInfo } from "../../src/common/types";
+import { windowResize, windowResizeBack } from "./utils/resize";
 
-const createCartApplication = (cartState?: CartState) => {
+const createApplication = (cartState?: CartState) => {
   const basename = "/hw/store";
 
   const api = new ExampleApi(basename);
   api.getProducts = async () =>
     (await Promise.resolve({
       data: [],
-    })) as any;
+    })) as unknown as Promise<AxiosResponse<ProductShortInfo[], any>>;
   const cart = new CartApi();
   cart.setState(
     cartState || {
@@ -49,20 +51,10 @@ const createCartApplication = (cartState?: CartState) => {
   );
 };
 
-const windowResize = () => {
-  global.innerWidth = 572;
-  global.dispatchEvent(new Event("resize"));
-};
-
-const windowResizeBack = () => {
-  global.innerWidth = 1024;
-  global.dispatchEvent(new Event("resize"));
-};
-
 describe("Корзина должна работать корректно.", () => {
   describe("В шапке рядом со ссылкой на корзину должно отображаться количество не повторяющихся товаров в ней.", () => {
     const headerUniqueItemsTest = async (isSmallWidthScreen = false) => {
-      render(createCartApplication());
+      render(createApplication());
 
       if (isSmallWidthScreen) {
         windowResize();
@@ -94,7 +86,7 @@ describe("Корзина должна работать корректно.", () 
 
   describe("В корзине должна отображаться таблица с добавленными в нее товарами.", () => {
     const productsTableTest = (isSmallWidthScreen = false) => {
-      render(createCartApplication());
+      render(createApplication());
 
       if (isSmallWidthScreen) windowResize();
 
@@ -102,7 +94,7 @@ describe("Корзина должна работать корректно.", () 
       const tableBody = getAllByRole(table, "rowgroup").find(
         (element) => element.tagName === "TBODY"
       );
-      expect(tableBody).not.toBeUndefined();
+      expect(tableBody).toBeDefined();
 
       expect(tableBody?.childElementCount).toBe(2);
 
@@ -123,29 +115,27 @@ describe("Корзина должна работать корректно.", () 
       Array.from(children).map((child) => child.textContent);
 
     const displayProductsTest = (isSmallWidthScreen = false) => {
-      render(createCartApplication());
+      render(createApplication());
 
       if (isSmallWidthScreen) windowResize();
 
       const firstItem = screen.getByTestId("0");
       const firstItemData = extractTextFromChildren(firstItem.children);
-      expect(firstItemData).toContain("Product1");
-      expect(firstItemData).toContain("$100");
-      expect(firstItemData).toContain("4");
-      expect(firstItemData).toContain("$400");
+      ["Product1", "$100", "4", "$400"].forEach((expectedValue) =>
+        expect(firstItemData).toContain(expectedValue)
+      );
 
       const secondItem = screen.getByTestId("1");
       const secondItemData = extractTextFromChildren(secondItem.children);
-      expect(secondItemData).toContain("Product2");
-      expect(secondItemData).toContain("$200");
-      expect(secondItemData).toContain("5");
-      expect(secondItemData).toContain("$1000");
+      ["Product2", "$200", "5", "$1000"].forEach((expectedValue) => {
+        expect(secondItemData).toContain(expectedValue);
+      });
 
       const table = screen.getByRole("table");
       const tableFoot = getAllByRole(table, "rowgroup").find(
         (element) => element.tagName === "TFOOT"
       );
-      expect(tableFoot).not.toBeUndefined();
+      expect(tableFoot).toBeDefined();
       expect(tableFoot!.textContent).toContain("$1400");
 
       if (isSmallWidthScreen) windowResizeBack();
@@ -162,7 +152,7 @@ describe("Корзина должна работать корректно.", () 
 
   describe('В корзине должна быть кнопка "очистить корзину", по нажатию на которую все товары должны удаляться.', () => {
     const clearCartTest = async (isSmallWidthScreen = false) => {
-      render(createCartApplication());
+      render(createApplication());
 
       if (isSmallWidthScreen) {
         windowResize();
@@ -198,7 +188,7 @@ describe("Корзина должна работать корректно.", () 
 
   describe("Если корзина пустая, должна отображаться ссылка на каталог товаров.", () => {
     const emptyContainerLinkTest = async (isSmallWidthScreen = false) => {
-      render(createCartApplication({}));
+      render(createApplication({}));
       const catalogLink = screen.getByText("catalog");
 
       if (isSmallWidthScreen) windowResize();

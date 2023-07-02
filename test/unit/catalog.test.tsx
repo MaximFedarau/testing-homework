@@ -2,19 +2,22 @@ import React from "react";
 import { MemoryRouter } from "react-router";
 import { Provider } from "react-redux";
 import { render, screen } from "@testing-library/react";
+import { AxiosResponse } from "axios";
 
 import { ExampleApi, CartApi } from "../../src/client/api";
 import { initStore } from "../../src/client/store";
 import { Application } from "../../src/client/Application";
+import { windowResize, windowResizeBack } from "./utils/resize";
+import { ProductShortInfo } from "../../src/common/types";
 
-const createCatalogApplication = () => {
+const createApplication = () => {
   const basename = "/hw/store";
 
   const api = new ExampleApi(basename);
   api.getProducts = async () =>
     (await Promise.resolve({
       data: [{ id: 0, name: "Product1", price: 100 }],
-    })) as any;
+    })) as unknown as Promise<AxiosResponse<ProductShortInfo[], any>>;
   const cart = new CartApi();
   const store = initStore(api, cart);
 
@@ -27,19 +30,9 @@ const createCatalogApplication = () => {
   );
 };
 
-const windowResize = () => {
-  global.innerWidth = 572;
-  global.dispatchEvent(new Event("resize"));
-};
-
-const windowResizeBack = () => {
-  global.innerWidth = 1024;
-  global.dispatchEvent(new Event("resize"));
-};
-
 describe("В каталоге должны отображаться товары, список которых приходит с сервера.", () => {
   const serverItemsTest = async (isSmallWidthScreen = false) => {
-    render(createCatalogApplication());
+    render(createApplication());
 
     if (isSmallWidthScreen) windowResize();
 
