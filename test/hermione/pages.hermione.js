@@ -1,4 +1,4 @@
-describe('Все страницы должны существовать, а страницы главная, условия доставки, контакты должны иметь статическое содержимое.', async function() {
+describe('Все страницы должны существовать, а страницы главная, условия доставки, контакты и пустая корзина должны иметь статическое содержимое.', async function() {
     it('Главная страница существует и имеет статическое содержимое.', async function() {
         await this.browser.url('http://localhost:3000/hw/store');
         await this.browser.assertView('plain', 'body');
@@ -13,6 +13,11 @@ describe('Все страницы должны существовать, а ст
         await this.browser.url('http://localhost:3000/hw/store/contacts');
         await this.browser.assertView('plain', 'body');
     });
+
+    it("Страница с пустой корзиной существует и имеет статическое содержимое.", async function() {
+        await this.browser.url("http://localhost:3000/hw/store/cart");
+        await this.browser.assertView("plain", "body");
+    })
 
     it('Страница с каталогом существует.', async function() {
         await this.browser.url('http://localhost:3000/hw/store/catalog');

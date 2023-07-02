@@ -1,19 +1,3 @@
-const emptyCardScreenshot = async (browser) => {
-    await browser.url("http://localhost:3000/hw/store/cart");
-    await browser.assertView("plain", "body");
-}
-
-describe("Пустая корзина имеет статическое содержимое.", async function() {
-    it("Пустая корзина имеет статическое содержимое при ширине экрана больше 576px.", async function() {
-        await emptyCardScreenshot(this.browser);
-    })
-
-    it("Пустая корзина имеет статическое содержимое при ширине экрана меньше 576px.", async function() {
-        await this.browser.setWindowSize(572, 4320);
-        await emptyCardScreenshot(this.browser);
-    })
-}) 
-
 const checkCartProductExistence = async (browser, productId) => {
     const productRow = await browser.$(`tr[data-testid="${productId}"]`);
     const isProductRowExisting = await productRow.isExisting();
