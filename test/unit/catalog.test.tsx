@@ -1,19 +1,11 @@
 import React from "react";
 import { MemoryRouter } from "react-router";
 import { Provider } from "react-redux";
-import {
-  render,
-  screen,
-  getAllByRole,
-  getByRole,
-} from "@testing-library/react";
-import events from "@testing-library/user-event";
-import { Helmet } from "react-helmet";
+import { render, screen } from "@testing-library/react";
 
 import { ExampleApi, CartApi } from "../../src/client/api";
 import { initStore } from "../../src/client/store";
 import { Application } from "../../src/client/Application";
-import { CartState } from "../../src/common/types";
 
 const createCatalogApplication = () => {
   const basename = "/hw/store";
